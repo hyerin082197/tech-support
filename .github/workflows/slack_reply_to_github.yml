@@ -1,14 +1,17 @@
-name: Slack Reply to GitHub Discussion
+name: "Slack Reply to GitHub Discussion"
 
 on:
-  repository_dispatch:
-    types: [slack-reply]
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Message from Slack"
+        required: true
 
 jobs:
-  add-comment:
+  reply-to-discussion:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch latest Discussion ID
+      - name: "Fetch latest Discussion ID"
         id: fetch_discussion
         run: |
           RESPONSE=$(curl -X POST -H "Authorization: bearer ${{ secrets.GH_TOKEN }}" \
@@ -19,12 +22,12 @@ jobs:
           DISCUSSION_ID=$(echo $RESPONSE | jq -r '.data.repository.discussions.nodes[0].id')
           echo "discussion_id=$DISCUSSION_ID" >> $GITHUB_ENV
 
-      - name: Post Reply to GitHub Discussion
+      - name: "Post Reply to GitHub Discussion"
         run: |
           curl -X POST -H "Authorization: bearer ${{ secrets.GH_TOKEN }}" \
                -H "Content-Type: application/json" \
                -H "Accept: application/vnd.github.v3+json" \
                -d '{
-                 "query": "mutation { addDiscussionComment(input: {discussionId: \"${{ env.discussion_id }}\", body: \"${{ github.event.client_payload.message }}\"}) { comment { id body } } }"
+                 "query": "mutation { addDiscussionComment(input: {discussionId: \"${{ env.discussion_id }}\", body: \"${{ github.event.inputs.message }}\"}) { comment { id body } } }"
                }' \
                "https://api.github.com/graphql"

@@ -12,7 +12,8 @@ jobs:
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
                -H "Accept: application/vnd.github.v3+json" \
-               https://api.github.com/repos/hyerin082197/tech-support/issues/comments \
+               -H "Content-Type: application/json" \
                -d '{
                  "body": "${{ github.event.comment.body }}"
-               }'
+               }' \
+               "https://api.github.com/repos/hyerin082197/tech-support/issues/comments"

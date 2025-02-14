@@ -1,8 +1,8 @@
 name: Slack Reply to GitHub Discussion
 
 on:
-  issue_comment:
-    types: [created]
+  repository_dispatch:
+    types: [slack-reply]
 
 jobs:
   add-comment:
@@ -10,10 +10,10 @@ jobs:
     steps:
       - name: Post Reply to GitHub Discussion
         run: |
-          curl -X POST -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                -H "Accept: application/vnd.github.v3+json" \
                -H "Content-Type: application/json" \
                -d '{
-                 "body": "${{ github.event.comment.body }}"
+                 "body": "${{ github.event.client_payload.message }}"
                }' \
                "https://api.github.com/repos/hyerin082197/tech-support/issues/comments"

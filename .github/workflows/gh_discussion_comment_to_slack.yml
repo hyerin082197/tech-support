@@ -1,0 +1,33 @@
+name: Send Discussion Comments to Slack
+
+on:
+  discussion_comment:
+    types: [created]
+
+jobs:
+  notify-slack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send message to Slack
+        uses: slackapi/slack-github-action@v1.18.0
+        with:
+          channel-id: "tech-support"
+          payload: |
+            {
+              "text": "*New Comment on Tech Supoort Discussion!*",
+              "attachments": [
+                {
+                  "text": "${{ github.event.comment.body }}",
+                  "footer": "Posted by ${{ github.event.comment.user.login }}",
+                  "actions": [
+                    {
+                      "type": "button",
+                      "text": "View on GitHub",
+                      "url": "${{ github.event.comment.html_url }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

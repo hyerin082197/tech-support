@@ -14,6 +14,7 @@ jobs:
           channel-id: "tech-support" # Slack 채널 ID
           payload: |
             {
+              "text": "New Comment on GitHub Discussion!",  # 필수 text 필드 추가
               "blocks": [
                 {
                   "type": "header",
@@ -63,7 +64,7 @@ jobs:
                         "text": "💬 View Comment"
                       },
                       "url": "${{ github.event.comment.html_url }}",
-                      "style": "default"
+                      "style": "primary"  # 🚀 오류 수정 (default → primary)
                     }
                   ]
                 }

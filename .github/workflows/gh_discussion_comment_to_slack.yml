@@ -8,22 +8,52 @@ jobs:
   notify-slack:
     runs-on: ubuntu-latest
     steps:
-      - name: Send message to Slack
+      - name: Send formatted message to Slack
         uses: slackapi/slack-github-action@v1.18.0
         with:
-          channel-id: "tech-support"
+          channel-id: "tech-support" # Slack 채널 ID
           payload: |
             {
-              "text": "*New Comment on Tech Supoort Discussion!*",
-              "attachments": [
+              "blocks": [
                 {
-                  "text": "${{ github.event.comment.body }}",
-                  "footer": "Posted by ${{ github.event.comment.user.login }}",
-                  "actions": [
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*💬 New Comment on tech-support Discussion!*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ">*Discussion:* ${{ github.event.discussion.title }}\n>${{ github.event.comment.body }}"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "${{ github.event.comment.user.avatar_url }}",
+                    "alt_text": "User Avatar"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "Posted by *${{ github.event.comment.user.login }}*"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
                     {
                       "type": "button",
-                      "text": "View on GitHub",
-                      "url": "${{ github.event.comment.html_url }}"
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View on GitHub"
+                      },
+                      "url": "${{ github.event.comment.html_url }}",
+                      "style": "primary"
                     }
                   ]
                 }

@@ -1,0 +1,18 @@
+name: Slack Reply to GitHub Discussion
+
+on:
+  repository_dispatch:
+    types: [slack-reply]
+
+jobs:
+  add-comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post Reply to GitHub Discussion
+        run: |
+          curl -X POST -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               https://api.github.com/repos/hyerin082197/tech-support/issues/comments \
+               -d '{
+                 "body": "${{ github.event.client_payload.message }}"
+               }'

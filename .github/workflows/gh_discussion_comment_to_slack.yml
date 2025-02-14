@@ -1,8 +1,10 @@
-name: Send Discussion Comments to Slack
+name: Send Discussion Events to Slack
 
 on:
+  discussion:
+    types: [created]  # 새로운 Discussion이 생성될 때
   discussion_comment:
-    types: [created]
+    types: [created]  # 기존 Discussion에 댓글이 달릴 때
 
 jobs:
   notify-slack:
@@ -11,7 +13,7 @@ jobs:
       - name: Send formatted message to Slack
         uses: slackapi/slack-github-action@v1.18.0
         with:
-          channel-id: "tech-support" # Slack 채널 ID
+          channel-id: "tech-support"
           payload: |
             {
               "blocks": [
@@ -19,18 +21,18 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*💬 New Comment on tech-support Discussion!*"
+                    "text": "${{ github.event_name == 'discussion' && '*🆕 New Discussion Created!*' || '*💬 New Comment on tech-support Discussion!*' }}"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": ">*Discussion:* ${{ github.event.discussion.title }}\n>${{ github.event.comment.body }}"
+                    "text": "${{ github.event_name == 'discussion' && '>*Discussion Created:* ' || '>*Discussion:* ' }}${{ github.event.discussion.title }}\n>${{ github.event_name == 'discussion' && github.event.discussion.body || github.event.comment.body }}"
                   },
                   "accessory": {
                     "type": "image",
-                    "image_url": "${{ github.event.comment.user.avatar_url }}",
+                    "image_url": "${{ github.event_name == 'discussion' && github.event.discussion.user.avatar_url || github.event.comment.user.avatar_url }}",
                     "alt_text": "User Avatar"
                   }
                 },
@@ -39,7 +41,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": "Posted by *${{ github.event.comment.user.login }}*"
+                      "text": "Posted by *${{ github.event_name == 'discussion' && github.event.discussion.user.login || github.event.comment.user.login }}*"
                     }
                   ]
                 },
@@ -52,7 +54,7 @@ jobs:
                         "type": "plain_text",
                         "text": "View on GitHub"
                       },
-                      "url": "${{ github.event.comment.html_url }}",
+                      "url": "${{ github.event_name == 'discussion' && github.event.discussion.html_url || github.event.comment.html_url }}",
                       "style": "primary"
                     }
                   ]

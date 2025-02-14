@@ -8,12 +8,23 @@ jobs:
   add-comment:
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch latest Discussion ID
+        id: fetch_discussion
+        run: |
+          RESPONSE=$(curl -X POST -H "Authorization: bearer ${{ secrets.GH_TOKEN }}" \
+                           -H "Content-Type: application/json" \
+                           -H "Accept: application/vnd.github.v3+json" \
+                           -d '{"query": "query { repository(owner: \"hyerin082197\", name: \"tech-support\") { discussions(first: 1, orderBy: {field: CREATED_AT, direction: DESC}) { nodes { id title } } } }"}' \
+                           "https://api.github.com/graphql")
+          DISCUSSION_ID=$(echo $RESPONSE | jq -r '.data.repository.discussions.nodes[0].id')
+          echo "discussion_id=$DISCUSSION_ID" >> $GITHUB_ENV
+
       - name: Post Reply to GitHub Discussion
         run: |
-          curl -X POST -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
-               -H "Accept: application/vnd.github.v3+json" \
+          curl -X POST -H "Authorization: bearer ${{ secrets.GH_TOKEN }}" \
                -H "Content-Type: application/json" \
+               -H "Accept: application/vnd.github.v3+json" \
                -d '{
-                 "body": "${{ github.event.client_payload.message }}"
+                 "query": "mutation { addDiscussionComment(input: {discussionId: \"${{ env.discussion_id }}\", body: \"${{ github.event.client_payload.message }}\"}) { comment { id body } } }"
                }' \
-               "https://api.github.com/repos/hyerin082197/tech-support/issues/comments"
+               "https://api.github.com/graphql"

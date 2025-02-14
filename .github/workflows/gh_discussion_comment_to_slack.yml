@@ -14,19 +14,30 @@ jobs:
           channel-id: "tech-support" # Slack 채널 ID
           payload: |
             {
+              "text": "💬 New Comment on GitHub Discussion!",  # 필수 text 필드 추가
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*💬 New Comment on tech-support Discussion!*"
+                    "text": "*📝 Discussion:* <${{ github.event.discussion.html_url }}|${{ github.event.discussion.title }}>"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": ">*Discussion:* ${{ github.event.discussion.title }}\n>${{ github.event.comment.body }}"
+                    "text": "> _${{ github.event.discussion.body }}_"  # 🚀 Discussion 본문 추가
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*💬 New Comment by <${{ github.event.comment.user.html_url }}|${{ github.event.comment.user.login }}>*\n>${{ github.event.comment.body }}"
                   },
                   "accessory": {
                     "type": "image",
@@ -35,22 +46,22 @@ jobs:
                   }
                 },
                 {
-                  "type": "context",
-                  "elements": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "Posted by *${{ github.event.comment.user.login }}*"
-                    }
-                  ]
-                },
-                {
                   "type": "actions",
                   "elements": [
                     {
                       "type": "button",
                       "text": {
                         "type": "plain_text",
-                        "text": "View on GitHub"
+                        "text": "🔗 View Discussion"
+                      },
+                      "url": "${{ github.event.discussion.html_url }}",
+                      "style": "primary"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "💬 View Comment"
                       },
                       "url": "${{ github.event.comment.html_url }}",
                       "style": "primary"
